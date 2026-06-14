@@ -1,0 +1,47 @@
+# Builds every package product (in Swift 6 and Swift 5 language modes) and the
+# Demo on each push / PR. To pin an older toolchain, add a matrix entry that
+# sets DEVELOPER_DIR — the sources already build in Swift 5.
+
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    name: Build package (Swift ${{ matrix.swift }})
+    runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        swift: ["6", "5"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build all products (iOS Simulator)
+        run: >
+          xcodebuild build
+          -scheme Sumi-Package
+          -destination 'generic/platform=iOS Simulator'
+          SWIFT_VERSION=${{ matrix.swift }}
+
+  demo:
+    name: Build Demo catalog
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Provide Demo signing config
+        run: cp Demo/Config/Signing.xcconfig.example Demo/Config/Signing.xcconfig
+      - name: Build Demo (iOS Simulator)
+        run: >
+          xcodebuild build
+          -project Demo/Demo.xcodeproj
+          -scheme Demo
+          -destination 'generic/platform=iOS Simulator'
+          CODE_SIGNING_ALLOWED=NO

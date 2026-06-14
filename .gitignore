@@ -1,0 +1,26 @@
+# Sumi — design-system package + Demo app. gitignore covers what
+# Xcode/SPM generate locally; the Demo's `.xcodeproj` is tracked.
+
+# Swift Package Manager
+.swiftpm/
+.build/
+Package.resolved
+*.xcframework/   # bundled binary frameworks are checked in
+                 # explicitly when needed; unintentional ones not
+
+# Xcode local state
+xcuserdata/
+*.xcuserstate
+DerivedData/
+
+# Demo app build output (derivedDataPath used by CI / local builds)
+Demo/.build_demo/
+
+# Test output
+Tests/output/
+
+# macOS
+.DS_Store
+
+# Demo app signing (per-contributor; copy from Signing.xcconfig.example)
+Demo/Config/Signing.xcconfig

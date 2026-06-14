@@ -1,0 +1,349 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 70;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AAAAAAAAAAAAAAAAAAAA0201 /* Sumi in Frameworks */ = {isa = PBXBuildFile; productRef = AAAAAAAAAAAAAAAAAAAA0101 /* Sumi */; };
+		AAAAAAAAAAAAAAAAAAAA0202 /* SumiToast in Frameworks */ = {isa = PBXBuildFile; productRef = AAAAAAAAAAAAAAAAAAAA0102 /* SumiToast */; };
+		AAAAAAAAAAAAAAAAAAAA0203 /* SumiAlert in Frameworks */ = {isa = PBXBuildFile; productRef = AAAAAAAAAAAAAAAAAAAA0103 /* SumiAlert */; };
+		AAAAAAAAAAAAAAAAAAAA0204 /* SumiMenuKit in Frameworks */ = {isa = PBXBuildFile; productRef = AAAAAAAAAAAAAAAAAAAA0104 /* SumiMenuKit */; };
+		AAAAAAAAAAAAAAAAAAAA0205 /* SumiMenu in Frameworks */ = {isa = PBXBuildFile; productRef = AAAAAAAAAAAAAAAAAAAA0105 /* SumiMenu */; };
+		AAAAAAAAAAAAAAAAAAAA0206 /* SumiContextMenu in Frameworks */ = {isa = PBXBuildFile; productRef = AAAAAAAAAAAAAAAAAAAA0106 /* SumiContextMenu */; };
+		AAAAAAAAAAAAAAAAAAAA0207 /* SumiPicker in Frameworks */ = {isa = PBXBuildFile; productRef = AAAAAAAAAAAAAAAAAAAA0107 /* SumiPicker */; };
+		AAAAAAAAAAAAAAAAAAAA0208 /* SumiSheet in Frameworks */ = {isa = PBXBuildFile; productRef = AAAAAAAAAAAAAAAAAAAA0108 /* SumiSheet */; };
+		AAAAAAAAAAAAAAAAAAAA0209 /* SumiDialog in Frameworks */ = {isa = PBXBuildFile; productRef = AAAAAAAAAAAAAAAAAAAA0109 /* SumiDialog */; };
+		AAAAAAAAAAAAAAAAAAAA020A /* SumiStepper in Frameworks */ = {isa = PBXBuildFile; productRef = AAAAAAAAAAAAAAAAAAAA010A /* SumiStepper */; };
+		AAAAAAAAAAAAAAAAAAAA020B /* SumiTable in Frameworks */ = {isa = PBXBuildFile; productRef = AAAAAAAAAAAAAAAAAAAA010B /* SumiTable */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AAAAAAAAAAAAAAAAAAAA0006 /* Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Demo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AAAAAAAAAAAAAAAAAAAA0011 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Signing.xcconfig; path = Config/Signing.xcconfig; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		AAAAAAAAAAAAAAAAAAAA0004 /* Demo */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Demo; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AAAAAAAAAAAAAAAAAAAA0008 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AAAAAAAAAAAAAAAAAAAA0201 /* Sumi in Frameworks */,
+				AAAAAAAAAAAAAAAAAAAA0202 /* SumiToast in Frameworks */,
+				AAAAAAAAAAAAAAAAAAAA0203 /* SumiAlert in Frameworks */,
+				AAAAAAAAAAAAAAAAAAAA0204 /* SumiMenuKit in Frameworks */,
+				AAAAAAAAAAAAAAAAAAAA0205 /* SumiMenu in Frameworks */,
+				AAAAAAAAAAAAAAAAAAAA0206 /* SumiContextMenu in Frameworks */,
+				AAAAAAAAAAAAAAAAAAAA0207 /* SumiPicker in Frameworks */,
+				AAAAAAAAAAAAAAAAAAAA0208 /* SumiSheet in Frameworks */,
+				AAAAAAAAAAAAAAAAAAAA0209 /* SumiDialog in Frameworks */,
+				AAAAAAAAAAAAAAAAAAAA020A /* SumiStepper in Frameworks */,
+				AAAAAAAAAAAAAAAAAAAA020B /* SumiTable in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AAAAAAAAAAAAAAAAAAAA0002 = {
+			isa = PBXGroup;
+			children = (
+				AAAAAAAAAAAAAAAAAAAA0004 /* Demo */,
+				AAAAAAAAAAAAAAAAAAAA0011 /* Signing.xcconfig */,
+				AAAAAAAAAAAAAAAAAAAA0003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AAAAAAAAAAAAAAAAAAAA0003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AAAAAAAAAAAAAAAAAAAA0006 /* Demo.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AAAAAAAAAAAAAAAAAAAA0005 /* Demo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AAAAAAAAAAAAAAAAAAAA000D /* Build configuration list for PBXNativeTarget "Demo" */;
+			buildPhases = (
+				AAAAAAAAAAAAAAAAAAAA0007 /* Sources */,
+				AAAAAAAAAAAAAAAAAAAA0008 /* Frameworks */,
+				AAAAAAAAAAAAAAAAAAAA0009 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				AAAAAAAAAAAAAAAAAAAA0004 /* Demo */,
+			);
+			name = Demo;
+			packageProductDependencies = (
+				AAAAAAAAAAAAAAAAAAAA0101 /* Sumi */,
+				AAAAAAAAAAAAAAAAAAAA0102 /* SumiToast */,
+				AAAAAAAAAAAAAAAAAAAA0103 /* SumiAlert */,
+				AAAAAAAAAAAAAAAAAAAA0104 /* SumiMenuKit */,
+				AAAAAAAAAAAAAAAAAAAA0105 /* SumiMenu */,
+				AAAAAAAAAAAAAAAAAAAA0106 /* SumiContextMenu */,
+				AAAAAAAAAAAAAAAAAAAA0107 /* SumiPicker */,
+				AAAAAAAAAAAAAAAAAAAA0108 /* SumiSheet */,
+				AAAAAAAAAAAAAAAAAAAA0109 /* SumiDialog */,
+				AAAAAAAAAAAAAAAAAAAA010A /* SumiStepper */,
+				AAAAAAAAAAAAAAAAAAAA010B /* SumiTable */,
+			);
+			productName = Demo;
+			productReference = AAAAAAAAAAAAAAAAAAAA0006 /* Demo.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AAAAAAAAAAAAAAAAAAAA0001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					AAAAAAAAAAAAAAAAAAAA0005 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = AAAAAAAAAAAAAAAAAAAA000A /* Build configuration list for PBXProject "Demo" */;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AAAAAAAAAAAAAAAAAAAA0002;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				AAAAAAAAAAAAAAAAAAAA0010 /* XCLocalSwiftPackageReference ".." */,
+			);
+			productRefGroup = AAAAAAAAAAAAAAAAAAAA0003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AAAAAAAAAAAAAAAAAAAA0005 /* Demo */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AAAAAAAAAAAAAAAAAAAA0009 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AAAAAAAAAAAAAAAAAAAA0007 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AAAAAAAAAAAAAAAAAAAA000B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		AAAAAAAAAAAAAAAAAAAA000C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 6.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		AAAAAAAAAAAAAAAAAAAA000E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = AAAAAAAAAAAAAAAAAAAA0011 /* Signing.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.greatlove.sumidemo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AAAAAAAAAAAAAAAAAAAA000F /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = AAAAAAAAAAAAAAAAAAAA0011 /* Signing.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.greatlove.sumidemo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AAAAAAAAAAAAAAAAAAAA000A /* Build configuration list for PBXProject "Demo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AAAAAAAAAAAAAAAAAAAA000B /* Debug */,
+				AAAAAAAAAAAAAAAAAAAA000C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AAAAAAAAAAAAAAAAAAAA000D /* Build configuration list for PBXNativeTarget "Demo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AAAAAAAAAAAAAAAAAAAA000E /* Debug */,
+				AAAAAAAAAAAAAAAAAAAA000F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		AAAAAAAAAAAAAAAAAAAA0010 /* XCLocalSwiftPackageReference ".." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AAAAAAAAAAAAAAAAAAAA0101 /* Sumi */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AAAAAAAAAAAAAAAAAAAA0010 /* XCLocalSwiftPackageReference ".." */;
+			productName = Sumi;
+		};
+		AAAAAAAAAAAAAAAAAAAA0102 /* SumiToast */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AAAAAAAAAAAAAAAAAAAA0010 /* XCLocalSwiftPackageReference ".." */;
+			productName = SumiToast;
+		};
+		AAAAAAAAAAAAAAAAAAAA0103 /* SumiAlert */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AAAAAAAAAAAAAAAAAAAA0010 /* XCLocalSwiftPackageReference ".." */;
+			productName = SumiAlert;
+		};
+		AAAAAAAAAAAAAAAAAAAA0104 /* SumiMenuKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AAAAAAAAAAAAAAAAAAAA0010 /* XCLocalSwiftPackageReference ".." */;
+			productName = SumiMenuKit;
+		};
+		AAAAAAAAAAAAAAAAAAAA0105 /* SumiMenu */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AAAAAAAAAAAAAAAAAAAA0010 /* XCLocalSwiftPackageReference ".." */;
+			productName = SumiMenu;
+		};
+		AAAAAAAAAAAAAAAAAAAA0106 /* SumiContextMenu */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AAAAAAAAAAAAAAAAAAAA0010 /* XCLocalSwiftPackageReference ".." */;
+			productName = SumiContextMenu;
+		};
+		AAAAAAAAAAAAAAAAAAAA0107 /* SumiPicker */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AAAAAAAAAAAAAAAAAAAA0010 /* XCLocalSwiftPackageReference ".." */;
+			productName = SumiPicker;
+		};
+		AAAAAAAAAAAAAAAAAAAA0108 /* SumiSheet */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AAAAAAAAAAAAAAAAAAAA0010 /* XCLocalSwiftPackageReference ".." */;
+			productName = SumiSheet;
+		};
+		AAAAAAAAAAAAAAAAAAAA0109 /* SumiDialog */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AAAAAAAAAAAAAAAAAAAA0010 /* XCLocalSwiftPackageReference ".." */;
+			productName = SumiDialog;
+		};
+		AAAAAAAAAAAAAAAAAAAA010A /* SumiStepper */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AAAAAAAAAAAAAAAAAAAA0010 /* XCLocalSwiftPackageReference ".." */;
+			productName = SumiStepper;
+		};
+		AAAAAAAAAAAAAAAAAAAA010B /* SumiTable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AAAAAAAAAAAAAAAAAAAA0010 /* XCLocalSwiftPackageReference ".." */;
+			productName = SumiTable;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = AAAAAAAAAAAAAAAAAAAA0001 /* Project object */;
+}

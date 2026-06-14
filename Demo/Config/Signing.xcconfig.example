@@ -1,0 +1,8 @@
+// Demo app signing template.
+//
+// Copy this file to `Signing.xcconfig` (same folder) and set your
+// own Apple Developer Team ID. `Signing.xcconfig` is gitignored,
+// so personal team IDs never land in the repo. The Demo builds on
+// the simulator without a team; a team is only needed to run on a
+// physical device.
+DEVELOPMENT_TEAM =
