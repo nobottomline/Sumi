@@ -23,7 +23,7 @@ jobs:
       matrix:
         swift: ["6", "5"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build all products (iOS Simulator)
         run: >
           xcodebuild build
@@ -35,7 +35,7 @@ jobs:
     name: Build Demo catalog
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Provide Demo signing config
         run: cp Demo/Config/Signing.xcconfig.example Demo/Config/Signing.xcconfig
       - name: Build Demo (iOS Simulator)
