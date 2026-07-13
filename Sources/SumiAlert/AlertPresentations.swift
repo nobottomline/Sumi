@@ -21,6 +21,31 @@ import Sumi
 //   • HoldAlertPresentation       — Alert.presentHoldToConfirm(...)
 //   • SumiProgressAlert           — owned by caller (own lifecycle)
 
+// MARK: - Emphasis rule
+
+/// Index of the button that should read as *preferred* — bold, and a Cancel
+/// so promoted takes the interactive accent colour.
+///
+/// iOS convention: in a destructive confirmation the SAFE choice is the
+/// preferred one, so the eye and muscle memory land on Cancel rather than the
+/// red action. When the action set contains a `.destructive`, Cancel is
+/// emphasised and the destructive stays red but un-bolded. Otherwise the
+/// affirmative is emphasised — the last `.primary`, else the last `.default`.
+/// Shared by every alert variant so the rule can't drift between them.
+func preferredActionIndex(in ordered: [Alert.Action]) -> Int? {
+    if ordered.contains(where: { $0.style == .destructive }),
+       let cancel = ordered.firstIndex(where: { $0.style == .cancel }) {
+        return cancel
+    }
+    for (i, a) in ordered.enumerated().reversed() where a.style == .primary {
+        return i
+    }
+    for (i, a) in ordered.enumerated().reversed() where a.style == .default {
+        return i
+    }
+    return nil
+}
+
 // MARK: - Basic alert presentation
 
 @MainActor
@@ -278,17 +303,7 @@ final class AlertPresentation {
             let cancel = actions.filter { $0.style == .cancel }
             return useHorizontal ? cancel + nonCancel : nonCancel + cancel
         }()
-        let emphasisedIndex: Int? = {
-            for (i, a) in orderedActions.enumerated().reversed() where a.style == .primary {
-                return i
-            }
-            // Fall back to last default if no explicit primary.
-            for (i, a) in orderedActions.enumerated().reversed()
-                where a.style == .default {
-                return i
-            }
-            return nil
-        }()
+        let emphasisedIndex = preferredActionIndex(in: orderedActions)
 
         let buttonsView = AlertButtonsView(
             actions: orderedActions,
@@ -669,16 +684,7 @@ final class TextAlertPresentation {
             let cancel = actions.filter { $0.style == .cancel }
             return useHorizontal ? cancel + nonCancel : nonCancel + cancel
         }()
-        let emphasisedIndex: Int? = {
-            for (i, a) in orderedActions.enumerated().reversed() where a.style == .primary {
-                return i
-            }
-            for (i, a) in orderedActions.enumerated().reversed()
-                where a.style == .default {
-                return i
-            }
-            return nil
-        }()
+        let emphasisedIndex = preferredActionIndex(in: orderedActions)
 
         let buttonsView = AlertButtonsView(
             actions: orderedActions,
@@ -1025,16 +1031,7 @@ final class FormAlertPresentation: NSObject, UITextFieldDelegate {
             let cancel = actions.filter { $0.style == .cancel }
             return useHorizontal ? cancel + nonCancel : nonCancel + cancel
         }()
-        let emphasisedIndex: Int? = {
-            for (i, a) in orderedActions.enumerated().reversed() where a.style == .primary {
-                return i
-            }
-            for (i, a) in orderedActions.enumerated().reversed()
-                where a.style == .default {
-                return i
-            }
-            return nil
-        }()
+        let emphasisedIndex = preferredActionIndex(in: orderedActions)
 
         let buttonsView = AlertButtonsView(
             actions: orderedActions,
@@ -1614,16 +1611,7 @@ final class ExpandableAlertPresentation {
             let cancel = actions.filter { $0.style == .cancel }
             return useHorizontal ? cancel + nonCancel : nonCancel + cancel
         }()
-        let emphasisedIndex: Int? = {
-            for (i, a) in orderedActions.enumerated().reversed() where a.style == .primary {
-                return i
-            }
-            for (i, a) in orderedActions.enumerated().reversed()
-                where a.style == .default {
-                return i
-            }
-            return nil
-        }()
+        let emphasisedIndex = preferredActionIndex(in: orderedActions)
 
         let buttonsView = AlertButtonsView(
             actions: orderedActions,
@@ -1963,16 +1951,7 @@ final class StepperAlertPresentation {
             let cancel = actions.filter { $0.style == .cancel }
             return useHorizontal ? cancel + nonCancel : nonCancel + cancel
         }()
-        let emphasisedIndex: Int? = {
-            for (i, a) in orderedActions.enumerated().reversed() where a.style == .primary {
-                return i
-            }
-            for (i, a) in orderedActions.enumerated().reversed()
-                where a.style == .default {
-                return i
-            }
-            return nil
-        }()
+        let emphasisedIndex = preferredActionIndex(in: orderedActions)
 
         let buttonsView = AlertButtonsView(
             actions: orderedActions,
@@ -2251,16 +2230,7 @@ final class ToggleAlertPresentation {
             let cancel = actions.filter { $0.style == .cancel }
             return useHorizontal ? cancel + nonCancel : nonCancel + cancel
         }()
-        let emphasisedIndex: Int? = {
-            for (i, a) in orderedActions.enumerated().reversed() where a.style == .primary {
-                return i
-            }
-            for (i, a) in orderedActions.enumerated().reversed()
-                where a.style == .default {
-                return i
-            }
-            return nil
-        }()
+        let emphasisedIndex = preferredActionIndex(in: orderedActions)
 
         let buttonsView = AlertButtonsView(
             actions: orderedActions,

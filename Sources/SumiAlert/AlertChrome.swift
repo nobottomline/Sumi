@@ -45,13 +45,21 @@ final class AlertButton: UIView {
         case .default:     color = Sumi.Color.accent
         case .primary:     color = Sumi.Color.accent
         case .destructive: color = Sumi.Color.danger
-        case .cancel:      color = Sumi.Color.textSecondary
+        // A Cancel that is the *preferred* action (i.e. the emphasised one,
+        // which happens in a destructive confirmation) takes the interactive
+        // accent colour, matching iOS where the bold Cancel is tinted. A
+        // plain Cancel stays muted.
+        case .cancel:      color = emphasised ? Sumi.Color.accent : Sumi.Color.textSecondary
         }
         self.tintColor_ = color
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
 
-        let font: UIFont = (emphasised || action.style == .primary || action.style == .destructive)
+        // Bold = the preferred button (emphasised) or an affirmative primary.
+        // Destructive is NOT auto-bolded: in a Cancel + Destructive alert the
+        // emphasis belongs to the safe choice, so the red action reads as
+        // available-but-not-the-default (iOS convention).
+        let font: UIFont = (emphasised || action.style == .primary)
             ? Sumi.Font.bodyEmphasised()
             : Sumi.Font.body()
 
