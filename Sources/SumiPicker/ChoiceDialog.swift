@@ -1,6 +1,37 @@
 import UIKit
 import Sumi
 
+/// One-shot owner cancellation for a window-level choice presentation.
+/// Security-sensitive callers use this to synchronously remove selected
+/// metadata when their scene grant or foreground custody is revoked. The
+/// handle is intentionally main-actor confined and cannot be reused.
+@MainActor
+public final class ChoiceDialogCancellation {
+    private var cancellationHandler: (() -> Void)?
+    private var isResolved = false
+
+    public init() {}
+
+    public func cancel() {
+        guard !isResolved else { return }
+        isResolved = true
+        let handler = cancellationHandler
+        cancellationHandler = nil
+        handler?()
+    }
+
+    fileprivate func bind(_ handler: @escaping () -> Void) -> Bool {
+        guard !isResolved, cancellationHandler == nil else { return false }
+        cancellationHandler = handler
+        return true
+    }
+
+    fileprivate func finish() {
+        isResolved = true
+        cancellationHandler = nil
+    }
+}
+
 // ChoiceDialog — modal centered dialog for picking from a
 // list of options. Three flavours:
 //
@@ -182,7 +213,8 @@ public enum ChoiceDialog {
         message: String? = nil,
         choices: [Choice<T>],
         selected: Set<T> = [],
-        accessory: PickerAccessory
+        accessory: PickerAccessory,
+        cancellation: ChoiceDialogCancellation? = nil
     ) async -> MultiPickResult<T> {
         await withCheckedContinuation { continuation in
             guard let window = activeWindow() else {
@@ -196,6 +228,7 @@ public enum ChoiceDialog {
                 choices: choices,
                 accessory: accessory
             ) { result in
+                cancellation?.finish()
                 switch result {
                 case .accessory:
                     continuation.resume(returning: .accessory)
@@ -205,6 +238,12 @@ public enum ChoiceDialog {
                 case .cancelled, .single, .triState:
                     continuation.resume(returning: .cancelled)
                 }
+            }
+            guard cancellation?.bind({ [weak controller] in
+                controller?.cancelImmediately()
+            }) != false else {
+                continuation.resume(returning: .cancelled)
+                return
             }
             controller.present(in: window)
         }

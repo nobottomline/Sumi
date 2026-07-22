@@ -23,6 +23,7 @@ final class ChoiceDialogController {
 
     private let dimmer = UIView()
     private let card: ChoiceDialogCard
+    private var isDismissing = false
     private var didComplete = false
 
     // Live selection state, depending on mode.
@@ -148,9 +149,21 @@ final class ChoiceDialogController {
         }
     }
 
-    private func complete(with result: DialogResult) {
+    /// Security/ownership cancellation skips the normal reverse animation so
+    /// selected metadata leaves pixels, accessibility and hit testing in the
+    /// same main-actor turn as the caller's grant revocation. It also wins a
+    /// race with an already-started normal dismissal animation.
+    func cancelImmediately() {
         guard !didComplete else { return }
-        didComplete = true
+        isDismissing = true
+        card.layer.removeAllAnimations()
+        dimmer.layer.removeAllAnimations()
+        finalize(with: .cancelled)
+    }
+
+    private func complete(with result: DialogResult) {
+        guard !isDismissing, !didComplete else { return }
+        isDismissing = true
         UIView.animate(
             withDuration: Sumi.Motion.fast,
             delay: 0,
@@ -160,10 +173,16 @@ final class ChoiceDialogController {
             self.card.transform = CGAffineTransform(scaleX: 0.88, y: 0.88)
             self.card.alpha = 0
         } completion: { _ in
-            self.card.removeFromSuperview()
-            self.dimmer.removeFromSuperview()
-            self.completion(result)
-            Self.live.removeAll { $0 === self }
+            self.finalize(with: result)
         }
+    }
+
+    private func finalize(with result: DialogResult) {
+        guard !didComplete else { return }
+        didComplete = true
+        card.removeFromSuperview()
+        dimmer.removeFromSuperview()
+        completion(result)
+        Self.live.removeAll { $0 === self }
     }
 }
