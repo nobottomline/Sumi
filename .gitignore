@@ -5,6 +5,9 @@
 .swiftpm/
 .build/
 Package.resolved
+build/
+.build-intermediates/
+.build-products/
 *.xcframework/   # bundled binary frameworks are checked in
                  # explicitly when needed; unintentional ones not
 
