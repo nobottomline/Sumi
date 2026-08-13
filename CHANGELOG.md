@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- System pointer interactions for custom alerts, dialogs, menus, pickers,
+  sheets, toasts, and steppers on iPadOS 13.4+ and Apple silicon Macs running
+  the Designed for iPad version.
+- `SumiPointerBehavior` with default-on automatic behavior and per-component
+  opt-out for hosts with conflicting pointer interactions.
+
+### Changed
+- Hover, press, loading, and disabled states now compose independently, so
+  moving a pointer during a click cannot leave custom controls highlighted or
+  clear their press feedback prematurely.
+
 ## [0.1.0] - 2026-06-14
 
 First public release.

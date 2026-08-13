@@ -1330,7 +1330,8 @@ final class HoldAlertPresentation {
         let holdButton = HoldToConfirmButton(
             title: holdAction.title,
             duration: holdAction.duration,
-            fillColor: actionColor
+            fillColor: actionColor,
+            pointerBehavior: holdAction.pointerBehavior
         )
         holdButton.onConfirmed = { [weak self] in self?.complete(confirmed: true) }
         cardClip.addSubview(holdButton)
@@ -1343,6 +1344,7 @@ final class HoldAlertPresentation {
         // Optional Cancel link
         if let cancelTitle, !cancelTitle.isEmpty {
             let cancelBtn = UIButton(type: .system)
+            cancelBtn.sumi_applyPointerBehavior(holdAction.pointerBehavior)
             cancelBtn.translatesAutoresizingMaskIntoConstraints = false
             cancelBtn.setTitle(cancelTitle, for: .normal)
             cancelBtn.setTitleColor(Sumi.Color.textSecondary, for: .normal)
@@ -1436,6 +1438,7 @@ final class ExpandableAlertPresentation {
     }
 
     func attach(to window: UIWindow) {
+        disclosureButton.sumi_applyPointerBehavior()
         Self.live.append(self)
         self.hostWindow = window
         dimmer.translatesAutoresizingMaskIntoConstraints = false
@@ -1971,6 +1974,7 @@ final class StepperAlertPresentation {
 
     private func makeStepperButton(symbol: String) -> UIButton {
         let btn = UIButton(type: .system)
+        btn.sumi_applyPointerBehavior()
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.tintColor = Sumi.Color.accent
         btn.backgroundColor = Sumi.Color.surfaceSubtle
@@ -2287,6 +2291,16 @@ private final class ToggleRow: UIView {
     private let indicator = AlertIndicatorBox()
     private let label = UILabel()
     private(set) var isOn: Bool
+    private var isPressed = false
+    private var isHovered = false
+    private lazy var sumiPointerInteraction = SumiPointerInteraction(
+        effect: .hover,
+        cornerRadius: Sumi.Radius.interactive,
+        behavior: option.pointerBehavior
+    ) { [weak self] hovered in
+        self?.isHovered = hovered
+        self?.updateHighlight(animated: true)
+    }
 
     init(option: Alert.ToggleOption, onChange: @escaping (Bool) -> Void) {
         self.option = option
@@ -2321,6 +2335,7 @@ private final class ToggleRow: UIView {
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapped))
         addGestureRecognizer(tap)
+        sumiPointerInteraction.install(on: self)
     }
 
     @available(*, unavailable)
@@ -2331,6 +2346,33 @@ private final class ToggleRow: UIView {
         indicator.setState(isOn ? .on : .off, animated: true)
         UISelectionFeedbackGenerator().selectionChanged()
         onChange(isOn)
+    }
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        isPressed = true
+        updateHighlight(animated: true)
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesEnded(touches, with: event)
+        isPressed = false
+        updateHighlight(animated: true)
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesCancelled(touches, with: event)
+        isPressed = false
+        updateHighlight(animated: true)
+    }
+
+    private func updateHighlight(animated: Bool) {
+        let color = (isPressed || isHovered) ? Sumi.Color.pressOverlay : UIColor.clear
+        if animated {
+            UIView.animate(withDuration: Sumi.Motion.fast) { self.backgroundColor = color }
+        } else {
+            backgroundColor = color
+        }
     }
 }
 
@@ -2761,6 +2803,15 @@ private final class ProgressAlertCancelRow: UIView {
 
     var onTap: (() -> Void)?
     private let button: AlertButton
+    private var isPressed = false
+    private var isHovered = false
+    private lazy var sumiPointerInteraction = SumiPointerInteraction(
+        effect: .hover,
+        cornerRadius: 0
+    ) { [weak self] hovered in
+        self?.isHovered = hovered
+        self?.updateHighlight(animated: true)
+    }
 
     init() {
         self.button = AlertButton(
@@ -2782,6 +2833,7 @@ private final class ProgressAlertCancelRow: UIView {
             button.leadingAnchor.constraint(equalTo: leadingAnchor),
             button.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
+        sumiPointerInteraction.install(on: self)
     }
 
     @available(*, unavailable)
@@ -2789,25 +2841,33 @@ private final class ProgressAlertCancelRow: UIView {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
-        button.setHighlighted(true, animated: false)
+        isPressed = true
+        updateHighlight(animated: false)
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesMoved(touches, with: event)
         guard let touch = touches.first else { return }
         let inside = bounds.contains(touch.location(in: self))
-        button.setHighlighted(inside, animated: false)
+        isPressed = inside
+        updateHighlight(animated: false)
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesEnded(touches, with: event)
         let inside = touches.first.map { bounds.contains($0.location(in: self)) } ?? false
-        button.setHighlighted(false, animated: true)
+        isPressed = false
+        updateHighlight(animated: true)
         if inside { onTap?() }
     }
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesCancelled(touches, with: event)
-        button.setHighlighted(false, animated: true)
+        isPressed = false
+        updateHighlight(animated: true)
+    }
+
+    private func updateHighlight(animated: Bool) {
+        button.setHighlighted(isPressed || isHovered, animated: animated)
     }
 }

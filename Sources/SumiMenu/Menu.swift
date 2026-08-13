@@ -43,13 +43,15 @@ public enum Menu {
         from sourceView: UIView,
         actions: [MenuAction],
         dismissOnAction: Bool = true,
-        searchable: Bool = false
+        searchable: Bool = false,
+        pointerBehavior: SumiPointerBehavior = .automatic
     ) {
         present(
             from: sourceView,
             sections: [MenuSection(actions: actions)],
             dismissOnAction: dismissOnAction,
-            searchable: searchable
+            searchable: searchable,
+            pointerBehavior: pointerBehavior
         )
     }
 
@@ -58,14 +60,16 @@ public enum Menu {
         from sourceView: UIView,
         sections: [MenuSection],
         dismissOnAction: Bool = true,
-        searchable: Bool = false
+        searchable: Bool = false,
+        pointerBehavior: SumiPointerBehavior = .automatic
     ) {
         guard let window = sourceView.window else { return }
         let controller = MenuPresentationController(
             sections: sections,
             anchor: sourceView,
             dismissOnAction: dismissOnAction,
-            searchable: searchable
+            searchable: searchable,
+            pointerBehavior: pointerBehavior
         )
         controller.attach(to: window)
     }
@@ -99,11 +103,21 @@ final class MenuPresentationController {
     /// height so a searchable menu's results stay above the keyboard.
     private var keyboardOverlap: CGFloat = 0
 
-    init(sections: [MenuSection], anchor: UIView, dismissOnAction: Bool, searchable: Bool) {
+    init(
+        sections: [MenuSection],
+        anchor: UIView,
+        dismissOnAction: Bool,
+        searchable: Bool,
+        pointerBehavior: SumiPointerBehavior
+    ) {
         self.sections = sections
         self.anchor = anchor
         self.dismissOnAction = dismissOnAction
-        let menu = MenuListView(sections: sections, isSearchable: searchable)
+        let menu = MenuListView(
+            sections: sections,
+            isSearchable: searchable,
+            pointerBehavior: pointerBehavior
+        )
         self.wrapper = MenuShadowWrapper(menu: menu)
         menu.onActionPicked = { [weak self] in
             guard self?.dismissOnAction == true else { return }

@@ -19,12 +19,29 @@ final class SheetActionRow: UIView {
     private let iconView = UIImageView()
     private let titleLabel = UILabel()
     private let subtitleLabel = UILabel()
+    private var isPressed = false
+    private var isHovered = false
+    private lazy var sumiPointerInteraction = SumiPointerInteraction(
+        effect: .hover,
+        cornerRadius: 0,
+        behavior: configuredPointerBehavior
+    ) { [weak self] hovered in
+        self?.isHovered = hovered
+        self?.updateHighlight(animated: true)
+    }
 
     /// `showsIconColumn` is decided sheet-wide: if any action
     /// has an icon, every row reserves the 28pt leading column
     /// (empty for icon-less rows) so titles align vertically.
-    init(action: SheetAction, showsIconColumn: Bool) {
+    private let configuredPointerBehavior: SumiPointerBehavior
+
+    init(
+        action: SheetAction,
+        showsIconColumn: Bool,
+        pointerBehavior: SumiPointerBehavior = .automatic
+    ) {
         self.action = action
+        self.configuredPointerBehavior = pointerBehavior.combined(with: action.pointerBehavior)
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         heightAnchor.constraint(greaterThanOrEqualToConstant: 52).isActive = true
@@ -125,6 +142,7 @@ final class SheetActionRow: UIView {
         // UIControl).
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapTriggered))
         addGestureRecognizer(tap)
+        sumiPointerInteraction.install(on: self)
     }
 
     @available(*, unavailable)
@@ -135,20 +153,28 @@ final class SheetActionRow: UIView {
     // touchesCancelled fires and we restore the row.
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
-        UIView.animate(withDuration: 0.06) {
-            self.backgroundColor = UIColor(white: 0.5, alpha: 0.10)
-        }
+        isPressed = true
+        updateHighlight(animated: true)
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesEnded(touches, with: event)
-        UIView.animate(withDuration: 0.18) {
-            self.backgroundColor = .clear
-        }
+        isPressed = false
+        updateHighlight(animated: true)
     }
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesCancelled(touches, with: event)
-        UIView.animate(withDuration: 0.12) {
-            self.backgroundColor = .clear
+        isPressed = false
+        updateHighlight(animated: true)
+    }
+
+    private func updateHighlight(animated: Bool) {
+        let color = (isPressed || isHovered)
+            ? UIColor(white: 0.5, alpha: 0.10)
+            : UIColor.clear
+        if animated {
+            UIView.animate(withDuration: Sumi.Motion.fast) { self.backgroundColor = color }
+        } else {
+            backgroundColor = color
         }
     }
 

@@ -1,4 +1,5 @@
 import UIKit
+import Sumi
 
 // SumiSheet — bottom action sheet.
 //
@@ -62,15 +63,23 @@ public enum SumiSheet {
         title: String? = nil,
         message: String? = nil,
         actions: [SheetAction],
-        cancelTitle: String? = "Cancel"
+        cancelTitle: String? = "Cancel",
+        pointerBehavior: SumiPointerBehavior = .automatic
     ) async -> Int? {
         await withCheckedContinuation { continuation in
             guard let window = Self.activeWindow() else {
                 continuation.resume(returning: nil)
                 return
             }
-            let mainCard = SheetCard(title: title, message: message, actions: actions)
-            let cancelCard = cancelTitle.map { SheetCancelCard(title: $0) }
+            let mainCard = SheetCard(
+                title: title,
+                message: message,
+                actions: actions,
+                pointerBehavior: pointerBehavior
+            )
+            let cancelCard = cancelTitle.map {
+                SheetCancelCard(title: $0, pointerBehavior: pointerBehavior)
+            }
             let presentation = SheetPresentation(
                 mainCard: mainCard,
                 cancelCard: cancelCard,
@@ -120,7 +129,8 @@ public enum SumiSheet {
         message: String? = nil,
         actions: [SheetAction],
         cancelTitle: String? = "Cancel",
-        scrollable: Bool = true
+        scrollable: Bool = true,
+        pointerBehavior: SumiPointerBehavior = .automatic
     ) async -> Int? {
         await withCheckedContinuation { continuation in
             guard let window = Self.activeWindow() else {
@@ -131,9 +141,12 @@ public enum SumiSheet {
                 title: title,
                 message: message,
                 actions: actions,
-                scrollable: scrollable
+                scrollable: scrollable,
+                pointerBehavior: pointerBehavior
             )
-            let cancelCard = cancelTitle.map { SheetCancelCard(title: $0) }
+            let cancelCard = cancelTitle.map {
+                SheetCancelCard(title: $0, pointerBehavior: pointerBehavior)
+            }
             let presentation = SheetPresentation(
                 mainCard: mainCard,
                 cancelCard: cancelCard,

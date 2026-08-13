@@ -60,6 +60,8 @@ public enum Alert {
 
         public let title: String
         public let style: Style
+        /// Pointer feedback policy for this action button.
+        public let pointerBehavior: SumiPointerBehavior
         /// Optional async work to run when the user picks this
         /// action. If non-nil, the alert KEEPS its presentation
         /// while the handler runs: the button replaces its
@@ -78,19 +80,26 @@ public enum Alert {
         /// disproportionate complexity for those.
         public let asyncHandler: (@MainActor @Sendable () async throws -> Void)?
 
-        public init(title: String, style: Style = .default) {
+        public init(
+            title: String,
+            style: Style = .default,
+            pointerBehavior: SumiPointerBehavior = .automatic
+        ) {
             self.title = title
             self.style = style
+            self.pointerBehavior = pointerBehavior
             self.asyncHandler = nil
         }
 
         public init(
             title: String,
             style: Style = .default,
+            pointerBehavior: SumiPointerBehavior = .automatic,
             asyncHandler: @escaping @MainActor @Sendable () async throws -> Void
         ) {
             self.title = title
             self.style = style
+            self.pointerBehavior = pointerBehavior
             self.asyncHandler = asyncHandler
         }
     }
@@ -228,15 +237,19 @@ public enum Alert {
         /// Default `.destructive` covers most use cases since
         /// hold-to-confirm exists for irreversible operations.
         public let style: Action.Style
+        /// Pointer feedback policy for the hold surface.
+        public let pointerBehavior: SumiPointerBehavior
 
         public init(
             title: String,
             duration: TimeInterval = 1.5,
-            style: Action.Style = .destructive
+            style: Action.Style = .destructive,
+            pointerBehavior: SumiPointerBehavior = .automatic
         ) {
             self.title = title
             self.duration = duration
             self.style = style
+            self.pointerBehavior = pointerBehavior
         }
     }
 
@@ -442,11 +455,19 @@ public enum Alert {
         public let id: String
         public let label: String
         public let initial: Bool
+        /// Pointer feedback policy for this toggle row.
+        public let pointerBehavior: SumiPointerBehavior
 
-        public init(id: String, label: String, initial: Bool = false) {
+        public init(
+            id: String,
+            label: String,
+            initial: Bool = false,
+            pointerBehavior: SumiPointerBehavior = .automatic
+        ) {
             self.id = id
             self.label = label
             self.initial = initial
+            self.pointerBehavior = pointerBehavior
         }
     }
 

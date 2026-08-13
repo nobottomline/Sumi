@@ -37,6 +37,7 @@ final class ChoiceDialogController {
         mode: DialogMode,
         choices: [Choice<T>],
         accessory: ChoiceDialog.PickerAccessory? = nil,
+        pointerBehavior: SumiPointerBehavior = .automatic,
         completion: @escaping (DialogResult) -> Void
     ) {
         self.dialogTitle = title
@@ -59,7 +60,8 @@ final class ChoiceDialogController {
             message: message,
             mode: mode,
             choices: self.choices,
-            accessory: accessory
+            accessory: accessory,
+            pointerBehavior: pointerBehavior
         )
         card.initialSingleSelection = singleSelection
         card.initialMultiSelection = multiSelection

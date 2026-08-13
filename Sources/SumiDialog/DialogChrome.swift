@@ -99,11 +99,27 @@ final class DialogTextButton: UIView {
     private let label = UILabel()
     private let spinner = UIActivityIndicatorView(style: .medium)
     private var isEnabledState: Bool = true
+    private var isPressed = false
+    private var isHovered = false
+    private lazy var sumiPointerInteraction = SumiPointerInteraction(
+        effect: .hover,
+        cornerRadius: 20,
+        behavior: action.pointerBehavior
+    ) { [weak self] hovered in
+        self?.isHovered = hovered
+        self?.updateHighlight(animated: true)
+    }
     var isEnabled: Bool {
         get { isEnabledState }
         set {
             isEnabledState = newValue
             label.alpha = newValue ? 1.0 : 0.35
+            sumiPointerInteraction.isEnabled = newValue && action.pointerBehavior.isEnabled
+            if !newValue {
+                isPressed = false
+                isHovered = false
+                updateHighlight(animated: true)
+            }
         }
     }
 
@@ -153,6 +169,7 @@ final class DialogTextButton: UIView {
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapped))
         addGestureRecognizer(tap)
+        sumiPointerInteraction.install(on: self)
     }
 
     @available(*, unavailable)
@@ -166,9 +183,8 @@ final class DialogTextButton: UIView {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
         guard isEnabledState else { return }
-        UIView.animate(withDuration: 0.08) {
-            self.backgroundColor = Sumi.Color.pressOverlay
-        }
+        isPressed = true
+        updateHighlight(animated: true)
     }
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesMoved(touches, with: event)
@@ -183,22 +199,36 @@ final class DialogTextButton: UIView {
         // that, the recogniser fails and the action won't fire
         // even if the finger returns inside the bounds.
         guard isEnabledState, let touch = touches.first else { return }
-        let inside = bounds.contains(touch.location(in: self))
-        UIView.animate(withDuration: 0.10) {
-            self.backgroundColor = inside ? Sumi.Color.pressOverlay : .clear
-        }
+        isPressed = bounds.contains(touch.location(in: self))
+        updateHighlight(animated: true)
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesEnded(touches, with: event)
-        UIView.animate(withDuration: 0.16) {
-            self.backgroundColor = .clear
-        }
+        isPressed = false
+        updateHighlight(animated: true)
     }
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesCancelled(touches, with: event)
-        UIView.animate(withDuration: 0.12) {
-            self.backgroundColor = .clear
+        isPressed = false
+        updateHighlight(animated: true)
+    }
+
+    private func updateHighlight(animated: Bool) {
+        let target = (isEnabledState && (isPressed || isHovered))
+            ? Sumi.Color.pressOverlay
+            : UIColor.clear
+        let changes = { self.backgroundColor = target }
+        if animated {
+            UIView.animate(withDuration: Sumi.Motion.fast, animations: changes)
+        } else {
+            changes()
         }
+    }
+
+    func setPointerInteractionAvailable(_ available: Bool) {
+        sumiPointerInteraction.isEnabled = available
+            && isEnabledState
+            && action.pointerBehavior.isEnabled
     }
 
     /// Crossfade between label and spinner. Both alphas animate
@@ -321,6 +351,7 @@ final class DialogButtonsRow: UIView {
             $0.action.title == action.title && $0.action.style == action.style
         }) else { return }
         loadingButton = target
+        for button in buttons { button.setPointerInteractionAvailable(false) }
         target.setLoading(true, animated: true)
         for btn in buttons where btn !== target {
             btn.setDimmed(true, animated: true)
@@ -338,5 +369,6 @@ final class DialogButtonsRow: UIView {
         }
         loadingButton = nil
         isUserInteractionEnabled = true
+        for button in buttons { button.setPointerInteractionAvailable(true) }
     }
 }

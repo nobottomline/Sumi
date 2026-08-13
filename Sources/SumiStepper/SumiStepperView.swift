@@ -41,13 +41,16 @@ public final class SumiStepperView: UIView {
         range: ClosedRange<Int>,
         caption: String? = nil,
         progressTotal: Int? = nil,
-        accentColor: UIColor = Sumi.Color.accent
+        accentColor: UIColor = Sumi.Color.accent,
+        pointerBehavior: SumiPointerBehavior = .automatic
     ) {
         precondition(range.contains(initial), "initial must be within range")
         self.range = range
         self.progressTotal = progressTotal
         self.accentColor = accentColor
         self.currentValue = initial
+        self.minusButton = RoundStepperButton(symbol: "minus", pointerBehavior: pointerBehavior)
+        self.plusButton = RoundStepperButton(symbol: "plus", pointerBehavior: pointerBehavior)
         super.init(frame: .zero)
         buildLayout(caption: caption)
         refreshUI()
@@ -76,8 +79,8 @@ public final class SumiStepperView: UIView {
 
     private let valueLabel = UILabel()
     private let captionLabel = UILabel()
-    private let minusButton = RoundStepperButton(symbol: "minus")
-    private let plusButton = RoundStepperButton(symbol: "plus")
+    private let minusButton: RoundStepperButton
+    private let plusButton: RoundStepperButton
     private let progressTrack = UIView()
     private let progressFill = UIView()
     private var progressFillWidthConstraint: NSLayoutConstraint!

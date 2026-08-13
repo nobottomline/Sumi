@@ -1,4 +1,5 @@
 import UIKit
+import Sumi
 
 // MenuAction — single row inside a menu / context-menu.
 //
@@ -12,7 +13,7 @@ import UIKit
 //   • `isSelected` — checkmark on the right, marks current
 //     option in a single-choice group.
 //   • `animateIconOnHighlight` — iOS 17+ SF Symbol bounce
-//     effect when the row is hovered. Per-action opt-out for
+//     effect when the row is highlighted by touch or pointer. Per-action opt-out for
 //     icons where the motion would be distracting (e.g.
 //     destructive actions, or actions like "Pause" where the
 //     bounce visually conflicts with the icon's static meaning).
@@ -37,6 +38,8 @@ public struct MenuAction: Sendable {
     public let style: Style
     public let isSelected: Bool
     public let animateIconOnHighlight: Bool
+    /// Pointer feedback policy for this menu row.
+    public let pointerBehavior: SumiPointerBehavior
     /// Android M3-style nested submenu. When non-nil, the row
     /// shows a chevron in its right slot (replacing any icon
     /// or detail), and tapping the row navigates the menu to
@@ -70,6 +73,7 @@ public struct MenuAction: Sendable {
         style: Style = .default,
         isSelected: Bool = false,
         animateIconOnHighlight: Bool = true,
+        pointerBehavior: SumiPointerBehavior = .automatic,
         submenu: [MenuSection]? = nil,
         toggle: Toggle? = nil,
         slider: Slider? = nil,
@@ -83,6 +87,7 @@ public struct MenuAction: Sendable {
         self.style = style
         self.isSelected = isSelected
         self.animateIconOnHighlight = animateIconOnHighlight
+        self.pointerBehavior = pointerBehavior
         self.submenu = submenu
         self.toggle = toggle
         self.slider = slider

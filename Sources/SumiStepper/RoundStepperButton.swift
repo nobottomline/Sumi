@@ -38,12 +38,34 @@ public final class RoundStepperButton: UIControl {
     private let imageView = UIImageView()
     private let fill = UIView()
     private static let diameter: CGFloat = 64
-
-    public override var isEnabled: Bool {
-        didSet { updateAppearance(animated: true) }
+    private var isPressed = false
+    private var isHovered = false
+    private let configuredPointerBehavior: SumiPointerBehavior
+    private lazy var sumiPointerInteraction = SumiPointerInteraction(
+        effect: .lift,
+        cornerRadius: Self.diameter / 2,
+        behavior: configuredPointerBehavior
+    ) { [weak self] hovered in
+        self?.isHovered = hovered
+        self?.updateAppearance(animated: true)
     }
 
-    public init(symbol: String) {
+    public override var isEnabled: Bool {
+        didSet {
+            sumiPointerInteraction.isEnabled = isEnabled && configuredPointerBehavior.isEnabled
+            if !isEnabled {
+                isPressed = false
+                isHovered = false
+            }
+            updateAppearance(animated: true)
+        }
+    }
+
+    public init(
+        symbol: String,
+        pointerBehavior: SumiPointerBehavior = .automatic
+    ) {
+        self.configuredPointerBehavior = pointerBehavior
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
 
@@ -86,6 +108,7 @@ public final class RoundStepperButton: UIControl {
             action: #selector(touchCancelled),
             for: [.touchUpOutside, .touchCancel]
         )
+        sumiPointerInteraction.install(on: self)
     }
 
     @available(*, unavailable)
@@ -94,6 +117,7 @@ public final class RoundStepperButton: UIControl {
     // MARK: - Touch handlers
 
     @objc private func touchDown() {
+        isPressed = true
         UIView.animate(
             withDuration: 0.12,
             delay: 0,
@@ -105,11 +129,13 @@ public final class RoundStepperButton: UIControl {
     }
 
     @objc private func touchUpInside() {
+        isPressed = false
         restoreFill()
         onTap?()
     }
 
     @objc private func touchCancelled() {
+        isPressed = false
         restoreFill()
         onHoldEnded?()
     }
@@ -129,7 +155,7 @@ public final class RoundStepperButton: UIControl {
 
     private func updateAppearance(animated: Bool) {
         let bg: UIColor = isEnabled
-            ? Sumi.Color.textPrimary.withAlphaComponent(0.06)
+            ? Sumi.Color.textPrimary.withAlphaComponent(isHovered && !isPressed ? 0.10 : 0.06)
             : Sumi.Color.textPrimary.withAlphaComponent(0.03)
         let tint: UIColor = isEnabled
             ? Sumi.Color.textPrimary

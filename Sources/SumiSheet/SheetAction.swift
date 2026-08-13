@@ -1,4 +1,5 @@
 import UIKit
+import Sumi
 
 // SheetAction — one row inside a SumiSheet.
 //
@@ -20,6 +21,8 @@ public struct SheetAction: Sendable {
     public let subtitle: String?
     public let icon: UIImage?
     public let style: Style
+    /// Pointer feedback policy for this action row or pill.
+    public let pointerBehavior: SumiPointerBehavior
     public let handler: (@MainActor @Sendable () -> Void)?
 
     public init(
@@ -27,12 +30,14 @@ public struct SheetAction: Sendable {
         subtitle: String? = nil,
         icon: UIImage? = nil,
         style: Style = .default,
+        pointerBehavior: SumiPointerBehavior = .automatic,
         handler: (@MainActor @Sendable () -> Void)? = nil
     ) {
         self.title = title
         self.subtitle = subtitle
         self.icon = icon
         self.style = style
+        self.pointerBehavior = pointerBehavior
         self.handler = handler
     }
 }

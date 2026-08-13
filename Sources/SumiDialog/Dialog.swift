@@ -46,6 +46,8 @@ public enum SumiDialog {
 
         public let title: String
         public let style: Style
+        /// Pointer feedback policy for this action button.
+        public let pointerBehavior: SumiPointerBehavior
         /// Optional async work to run when the user picks this
         /// action. If non-nil, the dialog KEEPS its presentation
         /// while the handler runs: the button replaces its
@@ -70,9 +72,14 @@ public enum SumiDialog {
         /// `presentForm`; nil for non-form dialogs.
         public let asyncFormHandler: (@MainActor @Sendable ([String]) async throws -> Void)?
 
-        public init(title: String, style: Style = .default) {
+        public init(
+            title: String,
+            style: Style = .default,
+            pointerBehavior: SumiPointerBehavior = .automatic
+        ) {
             self.title = title
             self.style = style
+            self.pointerBehavior = pointerBehavior
             self.asyncHandler = nil
             self.asyncFormHandler = nil
         }
@@ -84,10 +91,12 @@ public enum SumiDialog {
         public init(
             title: String,
             style: Style = .default,
+            pointerBehavior: SumiPointerBehavior = .automatic,
             asyncHandler: @escaping @MainActor @Sendable () async throws -> Void
         ) {
             self.title = title
             self.style = style
+            self.pointerBehavior = pointerBehavior
             // Bridge to the shared text-aware storage by wrapping
             // and dropping the input. Lets the presentation layer
             // call a single uniform `handler(text)` signature
@@ -109,10 +118,12 @@ public enum SumiDialog {
         public init(
             title: String,
             style: Style = .default,
+            pointerBehavior: SumiPointerBehavior = .automatic,
             asyncHandlerWithText: @escaping @MainActor @Sendable (String) async throws -> Void
         ) {
             self.title = title
             self.style = style
+            self.pointerBehavior = pointerBehavior
             self.asyncHandler = asyncHandlerWithText
             self.asyncFormHandler = nil
         }
@@ -124,10 +135,12 @@ public enum SumiDialog {
         public init(
             title: String,
             style: Style = .default,
+            pointerBehavior: SumiPointerBehavior = .automatic,
             asyncFormHandler: @escaping @MainActor @Sendable ([String]) async throws -> Void
         ) {
             self.title = title
             self.style = style
+            self.pointerBehavior = pointerBehavior
             self.asyncHandler = nil
             self.asyncFormHandler = asyncFormHandler
         }

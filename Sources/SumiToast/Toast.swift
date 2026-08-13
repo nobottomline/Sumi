@@ -47,9 +47,16 @@ public enum Toast {
 
     public struct Action: Sendable {
         public let title: String
+        /// Pointer feedback policy for the toast action button.
+        public let pointerBehavior: SumiPointerBehavior
         public let handler: @MainActor @Sendable () -> Void
-        public init(title: String, handler: @escaping @MainActor @Sendable () -> Void) {
+        public init(
+            title: String,
+            pointerBehavior: SumiPointerBehavior = .automatic,
+            handler: @escaping @MainActor @Sendable () -> Void
+        ) {
             self.title = title
+            self.pointerBehavior = pointerBehavior
             self.handler = handler
         }
     }
@@ -406,6 +413,7 @@ private final class ToastView: UIView {
             actionButton.setContentHuggingPriority(.required, for: .horizontal)
             actionButton.setContentCompressionResistancePriority(.required, for: .horizontal)
             actionButton.addTarget(self, action: #selector(actionTapped), for: .touchUpInside)
+            actionButton.sumi_applyPointerBehavior(action.pointerBehavior)
             // Generous touch padding for fat fingers.
             actionButton.contentEdgeInsets = UIEdgeInsets(top: 6, left: 4, bottom: 6, right: 4)
             contentContainer.addSubview(actionButton)
@@ -716,4 +724,3 @@ private final class ToastView: UIView {
         }
     }
 }
-

@@ -71,7 +71,8 @@ public enum ChoiceDialog {
         title: String,
         message: String? = nil,
         choices: [Choice<T>],
-        selected: T? = nil
+        selected: T? = nil,
+        pointerBehavior: SumiPointerBehavior = .automatic
     ) async -> T? {
         await withCheckedContinuation { continuation in
             guard let window = activeWindow() else {
@@ -82,7 +83,8 @@ public enum ChoiceDialog {
                 title: title,
                 message: message,
                 mode: .single(initial: selected),
-                choices: choices
+                choices: choices,
+                pointerBehavior: pointerBehavior
             ) { result in
                 switch result {
                 case .single(let value):
@@ -102,7 +104,8 @@ public enum ChoiceDialog {
         title: String,
         message: String? = nil,
         choices: [Choice<T>],
-        selected: Set<T> = []
+        selected: Set<T> = [],
+        pointerBehavior: SumiPointerBehavior = .automatic
     ) async -> Set<T>? {
         await withCheckedContinuation { continuation in
             guard let window = activeWindow() else {
@@ -113,7 +116,8 @@ public enum ChoiceDialog {
                 title: title,
                 message: message,
                 mode: .multi(initial: Set(selected.map(AnyHashable.init))),
-                choices: choices
+                choices: choices,
+                pointerBehavior: pointerBehavior
             ) { result in
                 switch result {
                 case .multi(let raw):
@@ -214,7 +218,8 @@ public enum ChoiceDialog {
         choices: [Choice<T>],
         selected: Set<T> = [],
         accessory: PickerAccessory,
-        cancellation: ChoiceDialogCancellation? = nil
+        cancellation: ChoiceDialogCancellation? = nil,
+        pointerBehavior: SumiPointerBehavior = .automatic
     ) async -> MultiPickResult<T> {
         await withCheckedContinuation { continuation in
             guard let window = activeWindow() else {
@@ -226,7 +231,8 @@ public enum ChoiceDialog {
                 message: message,
                 mode: .multi(initial: Set(selected.map(AnyHashable.init))),
                 choices: choices,
-                accessory: accessory
+                accessory: accessory,
+                pointerBehavior: pointerBehavior
             ) { result in
                 cancellation?.finish()
                 switch result {
@@ -256,7 +262,8 @@ public enum ChoiceDialog {
         title: String,
         message: String? = nil,
         choices: [Choice<T>],
-        states: [T: TriState] = [:]
+        states: [T: TriState] = [:],
+        pointerBehavior: SumiPointerBehavior = .automatic
     ) async -> [T: TriState]? {
         await withCheckedContinuation { continuation in
             guard let window = activeWindow() else {
@@ -270,7 +277,8 @@ public enum ChoiceDialog {
                 title: title,
                 message: message,
                 mode: .triState(initial: initial),
-                choices: choices
+                choices: choices,
+                pointerBehavior: pointerBehavior
             ) { result in
                 switch result {
                 case .triState(let raw):
@@ -335,6 +343,7 @@ struct AnyChoice {
     let colorSwatch: UIColor?
     let previewImage: UIImage?
     let isDisabled: Bool
+    let pointerBehavior: SumiPointerBehavior
 }
 
 extension Choice {
@@ -347,7 +356,8 @@ extension Choice {
             badge: badge,
             colorSwatch: colorSwatch?.color,
             previewImage: previewImage,
-            isDisabled: isDisabled
+            isDisabled: isDisabled,
+            pointerBehavior: pointerBehavior
         )
     }
 }

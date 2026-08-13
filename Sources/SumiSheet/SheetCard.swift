@@ -27,7 +27,12 @@ final class SheetCard: UIView, SheetContentCard {
 
     private let actions: [SheetAction]
 
-    init(title: String?, message: String?, actions: [SheetAction]) {
+    init(
+        title: String?,
+        message: String?,
+        actions: [SheetAction],
+        pointerBehavior: SumiPointerBehavior = .automatic
+    ) {
         self.actions = actions
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
@@ -64,7 +69,11 @@ final class SheetCard: UIView, SheetContentCard {
             if idx > 0 {
                 container.addArrangedSubview(makeHairline(inset: Sumi.Spacing.l))
             }
-            let row = SheetActionRow(action: action, showsIconColumn: showsIconColumn)
+            let row = SheetActionRow(
+                action: action,
+                showsIconColumn: showsIconColumn,
+                pointerBehavior: pointerBehavior
+            )
             row.onTap = { [weak self] in self?.onActionPicked?(idx) }
             container.addArrangedSubview(row)
         }
@@ -146,8 +155,23 @@ final class SheetCard: UIView, SheetContentCard {
 final class SheetCancelCard: UIView {
 
     var onTap: (() -> Void)?
+    private var isPressed = false
+    private var isHovered = false
+    private let configuredPointerBehavior: SumiPointerBehavior
+    private lazy var sumiPointerInteraction = SumiPointerInteraction(
+        effect: .hover,
+        cornerRadius: 22,
+        behavior: configuredPointerBehavior
+    ) { [weak self] hovered in
+        self?.isHovered = hovered
+        self?.updateHighlight(animated: true)
+    }
 
-    init(title: String) {
+    init(
+        title: String,
+        pointerBehavior: SumiPointerBehavior = .automatic
+    ) {
+        self.configuredPointerBehavior = pointerBehavior
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = Sumi.Color.surfaceElevated
@@ -171,6 +195,7 @@ final class SheetCancelCard: UIView {
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapTriggered))
         addGestureRecognizer(tap)
+        sumiPointerInteraction.install(on: self)
 
         accessibilityLabel = title
         accessibilityTraits = .button
@@ -182,20 +207,28 @@ final class SheetCancelCard: UIView {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
-        UIView.animate(withDuration: 0.06) {
-            self.backgroundColor = Sumi.Color.surfaceElevated.withAlphaComponent(0.85)
-        }
+        isPressed = true
+        updateHighlight(animated: true)
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesEnded(touches, with: event)
-        UIView.animate(withDuration: 0.18) {
-            self.backgroundColor = Sumi.Color.surfaceElevated
-        }
+        isPressed = false
+        updateHighlight(animated: true)
     }
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesCancelled(touches, with: event)
-        UIView.animate(withDuration: 0.12) {
-            self.backgroundColor = Sumi.Color.surfaceElevated
+        isPressed = false
+        updateHighlight(animated: true)
+    }
+
+    private func updateHighlight(animated: Bool) {
+        let color = (isPressed || isHovered)
+            ? Sumi.Color.surfaceElevated.withAlphaComponent(0.85)
+            : Sumi.Color.surfaceElevated
+        if animated {
+            UIView.animate(withDuration: Sumi.Motion.fast) { self.backgroundColor = color }
+        } else {
+            backgroundColor = color
         }
     }
 

@@ -45,13 +45,29 @@ final class ChoiceRowView: UIView {
     private let titleLabel = UILabel()
     private let subtitleLabel = UILabel()
     private let badgeView = ChoiceBadge()
+    private var isPressed = false
+    private var isHovered = false
+    private let configuredPointerBehavior: SumiPointerBehavior
+    private lazy var sumiPointerInteraction = SumiPointerInteraction(
+        effect: .hover,
+        cornerRadius: 0,
+        behavior: configuredPointerBehavior
+    ) { [weak self] hovered in
+        self?.isHovered = hovered
+        self?.updateHighlight(animated: true)
+    }
 
     private(set) var isCurrentlySelected: Bool = false
     private(set) var currentTriState: TriState = .off
 
-    init(choice: AnyChoice, indicatorStyle: IndicatorStyle) {
+    init(
+        choice: AnyChoice,
+        indicatorStyle: IndicatorStyle,
+        pointerBehavior: SumiPointerBehavior = .automatic
+    ) {
         self.choice = choice
         self.style = indicatorStyle
+        self.configuredPointerBehavior = pointerBehavior.combined(with: choice.pointerBehavior)
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         // The whole row is the tap target, so we expose a
@@ -213,6 +229,10 @@ final class ChoiceRowView: UIView {
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapTriggered))
         addGestureRecognizer(tap)
 
+        if !choice.isDisabled {
+            sumiPointerInteraction.install(on: self)
+        }
+
         if choice.isDisabled {
             isUserInteractionEnabled = false
             indicatorContainer.alpha = 0.4
@@ -228,20 +248,28 @@ final class ChoiceRowView: UIView {
     // fires (scrollView claims the touch) + tap fails.
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
-        UIView.animate(withDuration: 0.06) {
-            self.backgroundColor = UIColor(white: 0.5, alpha: 0.10)
-        }
+        isPressed = true
+        updateHighlight(animated: true)
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesEnded(touches, with: event)
-        UIView.animate(withDuration: 0.18) {
-            self.backgroundColor = .clear
-        }
+        isPressed = false
+        updateHighlight(animated: true)
     }
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesCancelled(touches, with: event)
-        UIView.animate(withDuration: 0.12) {
-            self.backgroundColor = .clear
+        isPressed = false
+        updateHighlight(animated: true)
+    }
+
+    private func updateHighlight(animated: Bool) {
+        let color = (isPressed || isHovered)
+            ? UIColor(white: 0.5, alpha: 0.10)
+            : UIColor.clear
+        if animated {
+            UIView.animate(withDuration: Sumi.Motion.fast) { self.backgroundColor = color }
+        } else {
+            backgroundColor = color
         }
     }
 

@@ -40,7 +40,13 @@ final class SheetHorizontalCard: UIView, SheetContentCard {
     private let scrollView = UIScrollView()
     private let stack = UIStackView()
 
-    init(title: String?, message: String?, actions: [SheetAction], scrollable: Bool) {
+    init(
+        title: String?,
+        message: String?,
+        actions: [SheetAction],
+        scrollable: Bool,
+        pointerBehavior: SumiPointerBehavior = .automatic
+    ) {
         self.actions = actions
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
@@ -80,7 +86,7 @@ final class SheetHorizontalCard: UIView, SheetContentCard {
         stack.alignment = .center
 
         for (idx, action) in actions.enumerated() {
-            let pill = SheetActionPill(action: action)
+            let pill = SheetActionPill(action: action, pointerBehavior: pointerBehavior)
             pill.onTap = { [weak self] in self?.onActionPicked?(idx) }
             stack.addArrangedSubview(pill)
         }
@@ -234,8 +240,23 @@ private final class SheetActionPill: UIView {
     private let iconHalo = UIView()  // press-state circle behind icon
     private let iconView = UIImageView()
     private let label = UILabel()
+    private let configuredPointerBehavior: SumiPointerBehavior
+    private var isPressed = false
+    private var isHovered = false
+    private lazy var sumiPointerInteraction = SumiPointerInteraction(
+        effect: .highlight,
+        cornerRadius: 22,
+        behavior: configuredPointerBehavior
+    ) { [weak self] hovered in
+        self?.isHovered = hovered
+        self?.updateHalo(animated: true)
+    }
 
-    init(action: SheetAction) {
+    init(
+        action: SheetAction,
+        pointerBehavior: SumiPointerBehavior = .automatic
+    ) {
+        self.configuredPointerBehavior = pointerBehavior.combined(with: action.pointerBehavior)
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
 
@@ -295,6 +316,7 @@ private final class SheetActionPill: UIView {
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapTriggered))
         addGestureRecognizer(tap)
+        sumiPointerInteraction.install(on: self)
 
         accessibilityLabel = action.title
         accessibilityHint = action.subtitle
@@ -315,24 +337,30 @@ private final class SheetActionPill: UIView {
     // bespoke motion vocabulary.
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
-        UIView.animate(
-            withDuration: 0.08,
-            delay: 0,
-            options: [.curveEaseOut, .allowUserInteraction]
-        ) {
-            self.iconHalo.backgroundColor = Sumi.Color.pressOverlay
-        }
+        isPressed = true
+        updateHalo(animated: true)
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesEnded(touches, with: event)
-        UIView.animate(withDuration: 0.18) {
-            self.iconHalo.backgroundColor = .clear
-        }
+        isPressed = false
+        updateHalo(animated: true)
     }
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesCancelled(touches, with: event)
-        UIView.animate(withDuration: 0.14) {
-            self.iconHalo.backgroundColor = .clear
+        isPressed = false
+        updateHalo(animated: true)
+    }
+
+    private func updateHalo(animated: Bool) {
+        let color = (isPressed || isHovered) ? Sumi.Color.pressOverlay : UIColor.clear
+        if animated {
+            UIView.animate(
+                withDuration: Sumi.Motion.fast,
+                delay: 0,
+                options: [.curveEaseOut, .allowUserInteraction]
+            ) { self.iconHalo.backgroundColor = color }
+        } else {
+            iconHalo.backgroundColor = color
         }
     }
 }

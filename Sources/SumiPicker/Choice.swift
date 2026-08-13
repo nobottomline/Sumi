@@ -1,4 +1,5 @@
 import UIKit
+import Sumi
 
 // Choice — a single option inside a ChoiceDialog.
 //
@@ -30,6 +31,8 @@ public struct Choice<T: Hashable & Sendable>: Sendable {
     /// When true, the choice is rendered greyed-out and
     /// non-interactive. The dialog skips selecting it.
     public let isDisabled: Bool
+    /// Pointer feedback policy for this choice row.
+    public let pointerBehavior: SumiPointerBehavior
 
     public init(
         value: T,
@@ -38,7 +41,8 @@ public struct Choice<T: Hashable & Sendable>: Sendable {
         badge: String? = nil,
         colorSwatch: UIColor? = nil,
         previewImage: UIImage? = nil,
-        isDisabled: Bool = false
+        isDisabled: Bool = false,
+        pointerBehavior: SumiPointerBehavior = .automatic
     ) {
         self.value = value
         self.title = title
@@ -47,6 +51,7 @@ public struct Choice<T: Hashable & Sendable>: Sendable {
         self.colorSwatch = colorSwatch.map(ColorRef.init)
         self.previewImage = previewImage
         self.isDisabled = isDisabled
+        self.pointerBehavior = pointerBehavior
     }
 }
 

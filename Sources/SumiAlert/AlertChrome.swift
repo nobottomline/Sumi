@@ -37,6 +37,16 @@ final class AlertButton: UIView {
     private let label = UILabel()
     private let spinner = UIActivityIndicatorView(style: .medium)
     private let tintColor_: UIColor
+    private var isPressed = false
+    private var isHovered = false
+    private lazy var sumiPointerInteraction = SumiPointerInteraction(
+        effect: .hover,
+        cornerRadius: 0,
+        behavior: action.pointerBehavior
+    ) { [weak self] hovered in
+        self?.isHovered = hovered
+        self?.updateHighlight(animated: true)
+    }
 
     init(action: Alert.Action, emphasised: Bool) {
         self.action = action
@@ -86,6 +96,7 @@ final class AlertButton: UIView {
             spinner.centerXAnchor.constraint(equalTo: centerXAnchor),
             spinner.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
+        sumiPointerInteraction.install(on: self)
     }
 
     @available(*, unavailable)
@@ -112,7 +123,12 @@ final class AlertButton: UIView {
     /// without animation on rapid changes (animation would
     /// queue up and lag the visual behind the finger).
     func setHighlighted(_ highlighted: Bool, animated: Bool) {
-        let target: UIColor = highlighted
+        isPressed = highlighted
+        updateHighlight(animated: animated)
+    }
+
+    private func updateHighlight(animated: Bool) {
+        let target: UIColor = (isPressed || isHovered)
             ? Sumi.Color.pressOverlay
             : .clear
         if animated {
@@ -120,6 +136,10 @@ final class AlertButton: UIView {
         } else {
             backgroundColor = target
         }
+    }
+
+    func setPointerInteractionAvailable(_ available: Bool) {
+        sumiPointerInteraction.isEnabled = available && action.pointerBehavior.isEnabled
     }
 
     /// Crossfade between label and spinner on async loading
@@ -332,6 +352,7 @@ final class AlertButtonsView: UIView {
     func startLoading(for action: Alert.Action) {
         guard let target = buttons.first(where: { $0.action.title == action.title && $0.action.style == action.style }) else { return }
         loadingButton = target
+        for button in buttons { button.setPointerInteractionAvailable(false) }
         target.setLoading(true, animated: true)
         for btn in buttons where btn !== target {
             btn.setDimmed(true, animated: true)
@@ -351,6 +372,7 @@ final class AlertButtonsView: UIView {
             btn.setDimmed(false, animated: true)
         }
         loadingButton = nil
+        for button in buttons { button.setPointerInteractionAvailable(true) }
     }
 
     // MARK: - Finger-drag selection
@@ -592,11 +614,27 @@ final class HoldToConfirmButton: UIView {
     private var hapticsHit: Set<Int> = []  // pct thresholds already fired
     private let selectionHaptic = UISelectionFeedbackGenerator()
     private let successHaptic = UINotificationFeedbackGenerator()
+    private var isHovered = false
+    private let configuredPointerBehavior: SumiPointerBehavior
+    private lazy var sumiPointerInteraction = SumiPointerInteraction(
+        effect: .hover,
+        cornerRadius: 12,
+        behavior: configuredPointerBehavior
+    ) { [weak self] hovered in
+        self?.isHovered = hovered
+        self?.updateRestingAppearance(animated: true)
+    }
 
-    init(title: String, duration: TimeInterval, fillColor: UIColor) {
+    init(
+        title: String,
+        duration: TimeInterval,
+        fillColor: UIColor,
+        pointerBehavior: SumiPointerBehavior = .automatic
+    ) {
         self.title = title
         self.duration = duration
         self.fillColor = fillColor
+        self.configuredPointerBehavior = pointerBehavior
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = Sumi.Color.surfaceSubtle
@@ -623,6 +661,7 @@ final class HoldToConfirmButton: UIView {
         ])
         selectionHaptic.prepare()
         successHaptic.prepare()
+        sumiPointerInteraction.install(on: self)
     }
 
     @available(*, unavailable)
@@ -726,6 +765,18 @@ final class HoldToConfirmButton: UIView {
         anim.isRemovedOnCompletion = false
         fillLayer.frame = to
         fillLayer.add(anim, forKey: "fill")
+        updateRestingAppearance(animated: true)
+    }
+
+    private func updateRestingAppearance(animated: Bool) {
+        guard holdTimer == nil else { return }
+        let color = isHovered
+            ? Sumi.Color.pressOverlay
+            : Sumi.Color.surfaceSubtle
+        if animated {
+            UIView.animate(withDuration: Sumi.Motion.fast) { self.backgroundColor = color }
+        } else {
+            backgroundColor = color
+        }
     }
 }
-

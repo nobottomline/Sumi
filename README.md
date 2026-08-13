@@ -71,6 +71,32 @@ Light-only by design — the cream surface *is* the identity.
 
 - iOS 13+
 - Swift 5.9 / Xcode 15+
+- Pointer feedback on iPadOS 13.4+ and Apple silicon Macs running the
+  Designed for iPad version
+
+## Pointer interactions
+
+Sumi components participate in system pointer interactions by default. Custom
+rows and buttons use the same restrained visual state as touch-down feedback,
+while isolated controls use system highlight or lift effects. Hovering never
+fires an action, starts hold-to-confirm progress, or produces haptics.
+
+Pointer support is progressive enhancement: it is inert on iPhone and on iPad
+when no pointing device is present. Disable it only when a host interaction
+would conflict with the component:
+
+```swift
+let action = SumiDialog.Action(
+    title: "Done",
+    style: .primary,
+    pointerBehavior: .disabled
+)
+```
+
+Action models support per-item opt-out. Container APIs such as `Menu`,
+`ContextMenu`, `SumiSheet`, `ChoiceDialog`, and `SumiStepperView` also accept
+`pointerBehavior: .disabled` to disable pointer feedback for the entire
+component instance.
 
 ## Installation
 

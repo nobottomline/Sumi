@@ -27,9 +27,14 @@ public enum ContextMenu {
     @MainActor
     public static func present(
         from sourceView: UIView,
-        actions: [MenuAction]
+        actions: [MenuAction],
+        pointerBehavior: SumiPointerBehavior = .automatic
     ) {
-        present(from: sourceView, sections: [MenuSection(actions: actions)])
+        present(
+            from: sourceView,
+            sections: [MenuSection(actions: actions)],
+            pointerBehavior: pointerBehavior
+        )
     }
 
     /// Sections-based overload. Use when the action list is
@@ -40,12 +45,14 @@ public enum ContextMenu {
     @MainActor
     public static func present(
         from sourceView: UIView,
-        sections: [MenuSection]
+        sections: [MenuSection],
+        pointerBehavior: SumiPointerBehavior = .automatic
     ) {
         guard let window = sourceView.window else { return }
         let controller = ContextMenuPresentation(
             sections: sections,
-            sourceView: sourceView
+            sourceView: sourceView,
+            pointerBehavior: pointerBehavior
         )
         controller.attach(to: window)
     }
@@ -64,9 +71,10 @@ public enum ContextMenu {
     @discardableResult
     public static func attachLongPress(
         to sourceView: UIView,
+        pointerBehavior: SumiPointerBehavior = .automatic,
         actionsProvider: @escaping @MainActor @Sendable () -> [MenuAction]
     ) -> UILongPressGestureRecognizer {
-        attachLongPress(to: sourceView) {
+        attachLongPress(to: sourceView, pointerBehavior: pointerBehavior) {
             [MenuSection(actions: actionsProvider())]
         }
     }
@@ -79,12 +87,17 @@ public enum ContextMenu {
     @discardableResult
     public static func attachLongPress(
         to sourceView: UIView,
+        pointerBehavior: SumiPointerBehavior = .automatic,
         sectionsProvider: @escaping @MainActor @Sendable () -> [MenuSection]
     ) -> UILongPressGestureRecognizer {
         let recognizer = UILongPressGestureRecognizer()
         recognizer.minimumPressDuration = 0.28
         recognizer.allowableMovement = 12
-        let handler = LongPressHandler(source: sourceView, sectionsProvider: sectionsProvider)
+        let handler = LongPressHandler(
+            source: sourceView,
+            pointerBehavior: pointerBehavior,
+            sectionsProvider: sectionsProvider
+        )
         recognizer.addTarget(handler, action: #selector(LongPressHandler.fired(_:)))
         objc_setAssociatedObject(recognizer, &LongPressHandler.key, handler, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         sourceView.addGestureRecognizer(recognizer)
@@ -103,15 +116,26 @@ private final class LongPressHandler: NSObject {
     nonisolated(unsafe) static var key: UInt8 = 0
     weak var source: UIView?
     let sectionsProvider: @MainActor @Sendable () -> [MenuSection]
+    private let pointerBehavior: SumiPointerBehavior
 
-    init(source: UIView, sectionsProvider: @escaping @MainActor @Sendable () -> [MenuSection]) {
+    init(
+        source: UIView,
+        pointerBehavior: SumiPointerBehavior,
+        sectionsProvider: @escaping @MainActor @Sendable () -> [MenuSection]
+    ) {
         self.source = source
+        self.pointerBehavior = pointerBehavior
         self.sectionsProvider = sectionsProvider
+        super.init()
     }
 
     @objc func fired(_ recognizer: UILongPressGestureRecognizer) {
         guard recognizer.state == .began, let view = source else { return }
-        ContextMenu.present(from: view, sections: sectionsProvider())
+        ContextMenu.present(
+            from: view,
+            sections: sectionsProvider(),
+            pointerBehavior: pointerBehavior
+        )
     }
 }
 
@@ -150,7 +174,11 @@ final class ContextMenuPresentation {
     /// to reconstruct the preview's resting frame.
     private var clampedPreviewSize: CGSize = .zero
 
-    init(sections: [MenuSection], sourceView: UIView) {
+    init(
+        sections: [MenuSection],
+        sourceView: UIView,
+        pointerBehavior: SumiPointerBehavior
+    ) {
         self.sections = sections
         self.sourceView = sourceView
         // Snapshot the source as it currently looks. The
@@ -168,7 +196,10 @@ final class ContextMenuPresentation {
             placeholder.backgroundColor = Sumi.Color.surfaceElevated
             self.previewSnapshot = placeholder
         }
-        let menu = MenuListView(sections: sections)
+        let menu = MenuListView(
+            sections: sections,
+            pointerBehavior: pointerBehavior
+        )
         self.wrapper = MenuShadowWrapper(menu: menu)
         menu.onActionPicked = { [weak self] in self?.dismiss() }
     }

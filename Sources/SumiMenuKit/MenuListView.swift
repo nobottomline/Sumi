@@ -56,12 +56,25 @@ public final class MenuListView: UIView {
     /// shorter than the parent.
     public var onContentSizeShouldChange: ((CGFloat) -> Void)?
 
-    public convenience init(actions: [MenuAction], isSearchable: Bool = false) {
-        self.init(sections: [MenuSection(actions: actions)], isSearchable: isSearchable)
+    public convenience init(
+        actions: [MenuAction],
+        isSearchable: Bool = false,
+        pointerBehavior: SumiPointerBehavior = .automatic
+    ) {
+        self.init(
+            sections: [MenuSection(actions: actions)],
+            isSearchable: isSearchable,
+            pointerBehavior: pointerBehavior
+        )
     }
 
-    public init(sections: [MenuSection], isSearchable: Bool = false) {
+    public init(
+        sections: [MenuSection],
+        isSearchable: Bool = false,
+        pointerBehavior: SumiPointerBehavior = .automatic
+    ) {
         self.isSearchable = isSearchable
+        self.pointerBehavior = pointerBehavior
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .clear
@@ -142,6 +155,7 @@ public final class MenuListView: UIView {
     //               └─ currentPage : PageContentView
 
     private let isSearchable: Bool
+    private let pointerBehavior: SumiPointerBehavior
     private let blurBackground = UIVisualEffectView(effect: UIBlurEffect(style: .systemMaterial))
     private let searchField = MenuSearchField()
     private let scrollView = UIScrollView()
@@ -268,6 +282,7 @@ public final class MenuListView: UIView {
         let pageView = PageContentView(
             page: page,
             parentTitle: page.parentTitle,
+            pointerBehavior: pointerBehavior,
             onActionPick: { [weak self] in self?.handleActionPick($0) }
         )
         pageStack.append(page)
@@ -615,12 +630,19 @@ final class PageContentView: UIView {
     fileprivate init(
         page: MenuListView.Page,
         parentTitle: String?,
+        pointerBehavior: SumiPointerBehavior,
         onActionPick: @escaping (MenuAction) -> Void
     ) {
         self.sections = page.sections
         self.parentTitle = parentTitle
-        self.rows = page.sections.flatMap { $0.actions.map(MenuRowView.init) }
-        self.backRow = parentTitle.map(MenuBackRowView.init)
+        self.rows = page.sections.flatMap { section in
+            section.actions.map {
+                MenuRowView(action: $0, pointerBehavior: pointerBehavior)
+            }
+        }
+        self.backRow = parentTitle.map {
+            MenuBackRowView(parentTitle: $0, pointerBehavior: pointerBehavior)
+        }
         self.onActionPick = onActionPick
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
@@ -852,14 +874,30 @@ final class MenuBackRowView: UIView {
     let parentTitle: String
     private let label = UILabel()
     private let chevron = UIImageView(image: UIImage(systemName: "chevron.left"))
-    private var isCurrentlyHighlighted = false
+    private var isPressed = false
+    private var isHovered = false
+    private let configuredPointerBehavior: SumiPointerBehavior
+    private lazy var sumiPointerInteraction = SumiPointerInteraction(
+        effect: .hover,
+        cornerRadius: 0,
+        behavior: configuredPointerBehavior
+    ) { [weak self] hovered in
+        self?.isHovered = hovered
+        self?.updateHighlight(animated: true)
+    }
 
-    init(parentTitle: String) {
+    init(
+        parentTitle: String,
+        pointerBehavior: SumiPointerBehavior = .automatic
+    ) {
         self.parentTitle = parentTitle
+        self.configuredPointerBehavior = pointerBehavior
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .clear
-        isUserInteractionEnabled = false  // parent gesture owns touches
+        // Pointer interactions need a hit-testable view. Touch selection still
+        // belongs to the ancestor recognizer, which observes descendant hits.
+        isUserInteractionEnabled = true
 
         chevron.translatesAutoresizingMaskIntoConstraints = false
         chevron.tintColor = Sumi.Color.accent
@@ -886,15 +924,21 @@ final class MenuBackRowView: UIView {
         accessibilityLabel = "Back to \(parentTitle)"
         accessibilityTraits = .button
         isAccessibilityElement = true
+        sumiPointerInteraction.install(on: self)
     }
 
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("init(coder:) not supported") }
 
     func setHighlighted(_ highlighted: Bool, animated: Bool) {
-        guard highlighted != isCurrentlyHighlighted else { return }
-        isCurrentlyHighlighted = highlighted
-        let target: UIColor = highlighted ? UIColor(white: 0.5, alpha: 0.16) : .clear
+        isPressed = highlighted
+        updateHighlight(animated: animated)
+    }
+
+    private func updateHighlight(animated: Bool) {
+        let target: UIColor = (isPressed || isHovered)
+            ? UIColor(white: 0.5, alpha: 0.16)
+            : .clear
         let updates = { self.backgroundColor = target }
         if animated {
             UIView.animate(withDuration: 0.18, animations: updates)
@@ -997,6 +1041,16 @@ public final class MenuRowView: UIView {
     private let sliderValueLabel = UILabel()
 
     private var isCurrentlyHighlighted = false
+    private var isHovered = false
+    private let configuredPointerBehavior: SumiPointerBehavior
+    private lazy var sumiPointerInteraction = SumiPointerInteraction(
+        effect: .hover,
+        cornerRadius: 0,
+        behavior: configuredPointerBehavior
+    ) { [weak self] hovered in
+        self?.isHovered = hovered
+        self?.updateHighlight(animated: true, animateIcon: hovered)
+    }
     fileprivate private(set) var liveToggleIsOn: Bool
 
     private let rightSlotKind: RightSlotKind
@@ -1009,8 +1063,12 @@ public final class MenuRowView: UIView {
         }
     }
 
-    init(action: MenuAction) {
+    init(
+        action: MenuAction,
+        pointerBehavior: SumiPointerBehavior = .automatic
+    ) {
         self.action = action
+        self.configuredPointerBehavior = pointerBehavior.combined(with: action.pointerBehavior)
         self.liveToggleIsOn = action.toggle?.isOn ?? false
 
         if action.submenu != nil {
@@ -1157,6 +1215,10 @@ public final class MenuRowView: UIView {
         if action.submenu != nil        { accessibilityLabelText += ", more options" }
         accessibilityLabel = accessibilityLabelText
         accessibilityTraits = action.style == .disabled ? [.button, .notEnabled] : .button
+        if action.style != .disabled && participatesInRowGesture {
+            isUserInteractionEnabled = true
+            sumiPointerInteraction.install(on: self)
+        }
     }
 
     @available(*, unavailable)
@@ -1264,7 +1326,14 @@ public final class MenuRowView: UIView {
         guard highlighted != isCurrentlyHighlighted else { return }
         isCurrentlyHighlighted = highlighted
 
-        let target: UIColor = highlighted ? UIColor(white: 0.5, alpha: 0.16) : .clear
+        updateHighlight(animated: animated, animateIcon: highlighted)
+    }
+
+    private func updateHighlight(animated: Bool, animateIcon: Bool) {
+
+        let target: UIColor = (isCurrentlyHighlighted || isHovered)
+            ? UIColor(white: 0.5, alpha: 0.16)
+            : .clear
         let updates = { self.backgroundColor = target }
         if animated {
             UIView.animate(withDuration: 0.18, animations: updates)
@@ -1272,7 +1341,7 @@ public final class MenuRowView: UIView {
             updates()
         }
 
-        guard highlighted,
+        guard animateIcon,
               action.animateIconOnHighlight,
               !UIAccessibility.isReduceMotionEnabled,
               action.style != .disabled,

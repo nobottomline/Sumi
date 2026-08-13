@@ -39,6 +39,7 @@ final class ChoiceDialogCard: UIView {
     private let mode: DialogMode
     private let choices: [AnyChoice]
     private let accessory: ChoiceDialog.PickerAccessory?
+    private let pointerBehavior: SumiPointerBehavior
     private var rows: [ChoiceRowView] = []
     private var emptyStateActive: Bool { choices.isEmpty && accessory != nil }
 
@@ -59,17 +60,21 @@ final class ChoiceDialogCard: UIView {
         message: String?,
         mode: DialogMode,
         choices: [AnyChoice],
-        accessory: ChoiceDialog.PickerAccessory? = nil
+        accessory: ChoiceDialog.PickerAccessory? = nil,
+        pointerBehavior: SumiPointerBehavior = .automatic
     ) {
         self.mode = mode
         self.choices = choices
         self.accessory = accessory
+        self.pointerBehavior = pointerBehavior
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = Sumi.Color.surfaceElevated
         layer.cornerRadius = 20
         layer.cornerCurve = .continuous
         layer.applySumiShadow(.modal)
+        doneButton.sumi_applyPointerBehavior(pointerBehavior)
+        footerAccessoryButton.sumi_applyPointerBehavior(pointerBehavior)
 
         // ---- Title row (just the title — counter now lives
         // inside the Done button label as "Done (N)" so the
@@ -145,7 +150,8 @@ final class ChoiceDialogCard: UIView {
             }
             let row = ChoiceRowView(
                 choice: choice,
-                indicatorStyle: indicatorStyleForMode()
+                indicatorStyle: indicatorStyleForMode(),
+                pointerBehavior: pointerBehavior
             )
             row.onTap = { [weak self] in self?.handleTap(on: row) }
             rows.append(row)
@@ -178,7 +184,7 @@ final class ChoiceDialogCard: UIView {
             hairline.heightAnchor.constraint(equalToConstant: 1.0 / UIScreen.main.scale).isActive = true
             stack.addArrangedSubview(hairline)
 
-            let row = AccessoryRowView(accessory: accessory)
+            let row = AccessoryRowView(accessory: accessory, pointerBehavior: pointerBehavior)
             row.onTap = { [weak self] in
                 UISelectionFeedbackGenerator().selectionChanged()
                 self?.onAccessoryTapped?()
@@ -534,7 +540,11 @@ private extension ChoiceDialogCard {
         helper.numberOfLines = 0
         container.addSubview(helper)
 
-        let cta = EmptyStateCTAButton(accessory: accessory, onTap: onTap)
+        let cta = EmptyStateCTAButton(
+            accessory: accessory,
+            pointerBehavior: pointerBehavior,
+            onTap: onTap
+        )
         container.addSubview(cta)
 
         NSLayoutConstraint.activate([
@@ -569,9 +579,25 @@ private final class EmptyStateCTAButton: UIView {
     private let label = UILabel()
     private let iconView = UIImageView()
     private let onTap: () -> Void
+    private var isPressed = false
+    private var isHovered = false
+    private let configuredPointerBehavior: SumiPointerBehavior
+    private lazy var sumiPointerInteraction = SumiPointerInteraction(
+        effect: .lift,
+        cornerRadius: 16,
+        behavior: configuredPointerBehavior
+    ) { [weak self] hovered in
+        self?.isHovered = hovered
+        self?.updateAppearance(animated: true)
+    }
 
-    init(accessory: ChoiceDialog.PickerAccessory, onTap: @escaping () -> Void) {
+    init(
+        accessory: ChoiceDialog.PickerAccessory,
+        pointerBehavior: SumiPointerBehavior,
+        onTap: @escaping () -> Void
+    ) {
         self.onTap = onTap
+        self.configuredPointerBehavior = pointerBehavior
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = Sumi.Color.accent
@@ -630,6 +656,7 @@ private final class EmptyStateCTAButton: UIView {
         accessibilityLabel = accessory.title
         accessibilityTraits = .button
         isAccessibilityElement = true
+        sumiPointerInteraction.install(on: self)
     }
 
     @available(*, unavailable)
@@ -637,33 +664,37 @@ private final class EmptyStateCTAButton: UIView {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
-        UIView.animate(
-            withDuration: 0.10,
-            delay: 0,
-            options: [.curveEaseOut, .allowUserInteraction]
-        ) {
-            self.transform = CGAffineTransform(scaleX: 0.96, y: 0.96)
-            self.alpha = 0.85
-        }
+        isPressed = true
+        updateAppearance(animated: true)
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesEnded(touches, with: event)
-        restoreFromPress()
+        isPressed = false
+        updateAppearance(animated: true)
     }
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesCancelled(touches, with: event)
-        restoreFromPress()
+        isPressed = false
+        updateAppearance(animated: true)
     }
-    private func restoreFromPress() {
-        UIView.animate(
-            withDuration: 0.20,
-            delay: 0,
-            usingSpringWithDamping: 0.78,
-            initialSpringVelocity: 0.3,
-            options: [.allowUserInteraction]
-        ) {
-            self.transform = .identity
-            self.alpha = 1
+
+    private func updateAppearance(animated: Bool) {
+        let active = isPressed || isHovered
+        let changes = {
+            self.transform = active ? CGAffineTransform(scaleX: 0.96, y: 0.96) : .identity
+            self.alpha = active ? 0.85 : 1
+        }
+        if animated {
+            UIView.animate(
+                withDuration: 0.20,
+                delay: 0,
+                usingSpringWithDamping: 0.78,
+                initialSpringVelocity: 0.3,
+                options: [.allowUserInteraction],
+                animations: changes
+            )
+        } else {
+            changes()
         }
     }
 
@@ -688,8 +719,23 @@ private final class EmptyStateCTAButton: UIView {
 private final class AccessoryRowView: UIView {
 
     var onTap: (() -> Void)?
+    private var isPressed = false
+    private var isHovered = false
+    private let configuredPointerBehavior: SumiPointerBehavior
+    private lazy var sumiPointerInteraction = SumiPointerInteraction(
+        effect: .hover,
+        cornerRadius: 0,
+        behavior: configuredPointerBehavior
+    ) { [weak self] hovered in
+        self?.isHovered = hovered
+        self?.updateHighlight(animated: true)
+    }
 
-    init(accessory: ChoiceDialog.PickerAccessory) {
+    init(
+        accessory: ChoiceDialog.PickerAccessory,
+        pointerBehavior: SumiPointerBehavior
+    ) {
+        self.configuredPointerBehavior = pointerBehavior
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .clear
@@ -752,6 +798,7 @@ private final class AccessoryRowView: UIView {
         accessibilityLabel = accessory.title
         accessibilityTraits = .button
         isAccessibilityElement = true
+        sumiPointerInteraction.install(on: self)
     }
 
     @available(*, unavailable)
@@ -767,20 +814,28 @@ private final class AccessoryRowView: UIView {
     // every tappable row in the dialog highlights the same way.
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
-        UIView.animate(withDuration: 0.06) {
-            self.backgroundColor = UIColor(white: 0.5, alpha: 0.10)
-        }
+        isPressed = true
+        updateHighlight(animated: true)
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesEnded(touches, with: event)
-        UIView.animate(withDuration: 0.18) {
-            self.backgroundColor = .clear
-        }
+        isPressed = false
+        updateHighlight(animated: true)
     }
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesCancelled(touches, with: event)
-        UIView.animate(withDuration: 0.12) {
-            self.backgroundColor = .clear
+        isPressed = false
+        updateHighlight(animated: true)
+    }
+
+    private func updateHighlight(animated: Bool) {
+        let color = (isPressed || isHovered)
+            ? UIColor(white: 0.5, alpha: 0.10)
+            : UIColor.clear
+        if animated {
+            UIView.animate(withDuration: Sumi.Motion.fast) { self.backgroundColor = color }
+        } else {
+            backgroundColor = color
         }
     }
 }
