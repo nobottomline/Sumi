@@ -104,7 +104,7 @@ Swift Package Manager — add the package and depend on the products you need:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/nobottomline/Sumi.git", from: "0.1.0")
+    .package(url: "https://github.com/nobottomline/Sumi.git", from: "0.2.0")
 ],
 targets: [
     .target(

@@ -7,17 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-13
+
 ### Added
 - System pointer interactions for custom alerts, dialogs, menus, pickers,
   sheets, toasts, and steppers on iPadOS 13.4+ and Apple silicon Macs running
   the Designed for iPad version.
 - `SumiPointerBehavior` with default-on automatic behavior and per-component
   opt-out for hosts with conflicting pointer interactions.
+- `ChoiceDialogCancellation` for immediately dismissing a multi-choice dialog
+  when its owning scene or authorization is revoked.
 
 ### Changed
 - Hover, press, loading, and disabled states now compose independently, so
   moving a pointer during a click cannot leave custom controls highlighted or
   clear their press feedback prematurely.
+- Destructive alerts now emphasize the safe cancel action while keeping the
+  destructive action red at regular weight, following the iOS convention.
+
+### Fixed
+- Restored the system Back button on the Menu screen in the Demo catalog.
 
 ## [0.1.0] - 2026-06-14
 
@@ -51,5 +60,6 @@ First public release.
 - **`RichText`** — lightweight inline markup (bold, links, `code`) shared by the
   components.
 
-[Unreleased]: ../../compare/0.1.0...HEAD
+[Unreleased]: ../../compare/0.2.0...HEAD
+[0.2.0]: ../../compare/0.1.0...0.2.0
 [0.1.0]: ../../releases/tag/0.1.0
