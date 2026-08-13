@@ -42,18 +42,28 @@ public final class MenuPlaygroundViewController: UIViewController {
         // The selector handlers below resolve the bar button's
         // backing view via the same `value(forKey: "view")` KVC
         // trick.
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
+        // Keep the navigation controller's Back button visible.
+        // A custom left item replaces it by default, which used to
+        // trap the playground on this screen.
+        navigationItem.leftItemsSupplementBackButton = true
+
+        let sectionMenuButton = UIBarButtonItem(
             image: UIImage(systemName: "line.3.horizontal.decrease"),
             style: .plain,
             target: self,
             action: #selector(handleLeftBarTap(_:))
         )
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
+        sectionMenuButton.accessibilityLabel = "Open grouped menu"
+        navigationItem.leftBarButtonItem = sectionMenuButton
+
+        let sortMenuButton = UIBarButtonItem(
             image: UIImage(systemName: "ellipsis.circle"),
             style: .plain,
             target: self,
             action: #selector(handleRightBarTap(_:))
         )
+        sortMenuButton.accessibilityLabel = "Open sort menu"
+        navigationItem.rightBarButtonItem = sortMenuButton
 
         scroll.translatesAutoresizingMaskIntoConstraints = false
         scroll.alwaysBounceVertical = true
